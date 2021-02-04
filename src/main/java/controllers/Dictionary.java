@@ -19,18 +19,20 @@ public class Dictionary{
     @Produces(MediaType.APPLICATION_JSON)
     public String DictionaryCheck(@FormDataParam("keyword") String keyword){
         try{
-            System.out.println(keyword);
             keyword = keyword.toUpperCase();
+            System.out.println(keyword);
             PreparedStatement ps = Main.db.prepareStatement("SELECT Word FROM Dictionary WHERE upper(Word)=?");
             ps.setString(1,keyword);
             ResultSet rs = ps.executeQuery();
-
-            return "{\"Success\": \"Valid word used!\"}";
-
+            while(rs.next()) {
+                if(rs.getString(1).toUpperCase().equals(keyword.toUpperCase())) {
+                    return "{\"Success\": \"Valid word used!\"}";
+                }
+            }
+            return "{\"Error\": \"Word not found in the list!\"}";
         }catch(Exception e){
             return "{\"Error\": \""+e.toString()+"!\"}";
         }
-
     }
-
 }
+

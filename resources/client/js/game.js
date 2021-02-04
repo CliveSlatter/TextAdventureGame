@@ -15,10 +15,14 @@ function loadStart() {
             let descDiv = createDescription(response.description)
             let urlDiv = createImage(response.url)
             let optDiv = createOptions(response.options)
+            let itemDiv = createItemList()
+            let searhDiv = createSearchBar()
             document.getElementById("container").appendChild(locDiv)
             document.getElementById("container").appendChild(descDiv)
             document.getElementById("container").appendChild(urlDiv)
             document.getElementById("container").appendChild(optDiv)
+            document.getElementById("container").appendChild(itemDiv)
+            document.getElementById("container").appendChild(searhDiv)
             Cookies.set("locationID",response.locationID)
         }
     });
@@ -26,9 +30,8 @@ function loadStart() {
 
 function startAction() {
     let keyword = document.getElementById("instruction").value
-    checkKeyWord(keyword)
-    if(keyword){
-        console.log(Cookies.get("locationID"))
+    let found = checkKeyWord(keyword)
+    if(found){
         let url = "/items/find"
         fetch(url,{
             method: "GET",
@@ -49,10 +52,14 @@ function startAction() {
                 document.getElementById("items").innerHTML = itemsHTML
             }
         });
+    }else{
+        alert("Keyword not recognised")
     }
+    document.getElementById("instruction").innerText=""
 }
 
 function checkKeyWord(keyword){
+    console.log("Invoked checkWord()")
     let url = "/dictionary/check"
     let data = new FormData()
     data.append("keyword", keyword)
@@ -64,13 +71,44 @@ function checkKeyWord(keyword){
     }).then(response => {
         if (response.hasOwnProperty("Error")) {
             console.log(JSON.stringify(response));
+            return false
         } else {
             console.log(JSON.stringify(response))
+            return true
         }
     });
 }
 
 function findLocation(id){
+    let url = "/locations/getLocation"
+    Cookies.set("locationID",id)
+    console.log("Invoked findLocation()");
+    fetch(url, {
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")) {
+            alert(JSON.stringify(response));
+        } else {
+            console.log(response)
+            let node = document.getElementById("container")
+            while(node.firstChild){
+                node.removeChild(node.firstChild)
+            }
+            let locDiv = createLocation(response.locationName, response.locationID)
+            let descDiv = createDescription(response.description)
+            let urlDiv = createImage(response.url)
+            let optDiv = createOptions(response.options)
+            let searchDiv = createSearchBar()
+            document.getElementById("container").appendChild(locDiv)
+            document.getElementById("container").appendChild(descDiv)
+            document.getElementById("container").appendChild(urlDiv)
+            document.getElementById("container").appendChild(optDiv)
+            document.getElementById("container").appendChild(searchDiv)
+            Cookies.set("locationID",response.locationID)
+        }
+    });
 
 }
 
@@ -88,6 +126,7 @@ function createDescription(description){
     const desc = document.createTextNode(description)
     descDiv.appendChild(desc)
     descDiv.setAttribute("class", "description")
+    descDiv.setAttribute("id", "description")
     return descDiv
 }
 
@@ -97,6 +136,7 @@ function createImage(picUrl){
     urlDiv.appendChild(url)
     url.setAttribute("src","img/"+picUrl)
     urlDiv.setAttribute("class","url")
+    urlDiv.setAttribute("id","url")
     return urlDiv
 }
 
@@ -113,6 +153,7 @@ function createOptions(options){
     headingRow.appendChild(tableHeading)
     tableBody.appendChild(headingRow)
     optDiv.setAttribute("class","directions")
+    optDiv.setAttribute("id","directions")
     table.setAttribute("class","table")
     for(let opt of options){
         let row = document.createElement("tr")
@@ -137,5 +178,37 @@ function createOptions(options){
 
 function createItems(){
 
+}
+
+function createSearchBar(){
+    let searchDiv = document.createElement("div")
+    searchDiv.setAttribute("class", "input")
+    searchDiv.setAttribute("id","userInput")
+    const form = document.createElement("form")
+    const button = document.createElement("button")
+    button.setAttribute("onclick","startAction()")
+    let buttonText = document.createTextNode("Enter")
+    button.appendChild(buttonText)
+    const text = document.createElement("input")
+    text.setAttribute("class","textInput")
+    text.setAttribute("id","instruction")
+    text.setAttribute("autocomplete", "off")
+    text.setAttribute("placeholder","Type help for available keywords")
+    const label = document.createElement("label")
+    let labelText = document.createTextNode("Enter instruction:")
+    label.setAttribute("for","userInput")
+    label.appendChild(labelText)
+    form.appendChild(label)
+    form.appendChild(text)
+    searchDiv.appendChild(form)
+    searchDiv.appendChild(button)
+    return searchDiv
+}
+
+function createItemList(){
+    const searchDiv = document.createElement("div")
+    searchDiv.setAttribute("id","items")
+    searchDiv.setAttribute("class","items")
+    return searchDiv
 }
 
