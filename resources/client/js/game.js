@@ -1,7 +1,8 @@
-
+let keywords = new Map()
 
 function loadStart() {
     let url = "/locations/getFirst"
+    createWordMap()
     console.log("Invoked firstLocation()");
     fetch(url, {
         method: "GET",
@@ -11,27 +12,28 @@ function loadStart() {
         if (response.hasOwnProperty("Error")) {
             alert(JSON.stringify(response));
         } else {
+            let titleDiv = createTitle()
             let locDiv = createLocation(response.locationName, response.locationID)
             let descDiv = createDescription(response.description)
             let urlDiv = createImage(response.url)
             let optDiv = createOptions(response.options)
             let itemDiv = createItemList()
-            let searhDiv = createSearchBar()
+            let searchDiv = createSearchBar()
+            document.getElementById("container").appendChild(titleDiv)
             document.getElementById("container").appendChild(locDiv)
             document.getElementById("container").appendChild(descDiv)
             document.getElementById("container").appendChild(urlDiv)
             document.getElementById("container").appendChild(optDiv)
             document.getElementById("container").appendChild(itemDiv)
-            document.getElementById("container").appendChild(searhDiv)
+            document.getElementById("container").appendChild(searchDiv)
             Cookies.set("locationID",response.locationID)
         }
     });
 }
 
-function startAction() {
-    let keyword = document.getElementById("instruction").value
-    let found = checkKeyWord(keyword)
-    if(found){
+function startAction(word) {
+    if(word==="Search"){
+
         let url = "/items/find"
         fetch(url,{
             method: "GET",
@@ -42,26 +44,30 @@ function startAction() {
                 console.log(JSON.stringify(response));
             } else {
                 console.log(JSON.stringify(response))
-                    let itemsHTML = `<table><tr><th>Items</th></tr>`
+                let itemsHTML = `<table><tr><th>Items</th></tr>`
                 for(let item of response.items){
                     itemsHTML += `<tr>`
-                                + `<td><button id="${item.itemID}">${item.item}</button></td>`
-                                +`</tr>`
+                        + `<td><button id="${item.itemID}">${item.item}</button></td>`
+                        +`</tr>`
                 }
                 itemsHTML += `</table>`
                 document.getElementById("items").innerHTML = itemsHTML
+                document.getElementById("instruction").innerText=""
             }
         });
-    }else{
-        alert("Keyword not recognised")
+    }else if(word==="Help"){
+
+        createHelpList()
+
     }
-    document.getElementById("instruction").innerText=""
+
 }
 
-function checkKeyWord(keyword){
+function checkKeyWord(){
     console.log("Invoked checkWord()")
     let url = "/dictionary/check"
     let data = new FormData()
+    let keyword = document.getElementById("instruction").value
     data.append("keyword", keyword)
     fetch(url,{
         method: "POST",
@@ -69,12 +75,10 @@ function checkKeyWord(keyword){
     }).then(response => {
         return response.json()
     }).then(response => {
-        if (response.hasOwnProperty("Error")) {
+        if (response.hasOwnProperty("Error")){
             console.log(JSON.stringify(response));
-            return false
-        } else {
-            console.log(JSON.stringify(response))
-            return true
+        } else{
+            startAction(response.word)
         }
     });
 }
@@ -96,15 +100,19 @@ function findLocation(id){
             while(node.firstChild){
                 node.removeChild(node.firstChild)
             }
+            let titleDiv = createTitle()
             let locDiv = createLocation(response.locationName, response.locationID)
             let descDiv = createDescription(response.description)
             let urlDiv = createImage(response.url)
             let optDiv = createOptions(response.options)
+            let itemDiv = createItemList()
             let searchDiv = createSearchBar()
+            document.getElementById("container").appendChild(titleDiv)
             document.getElementById("container").appendChild(locDiv)
             document.getElementById("container").appendChild(descDiv)
             document.getElementById("container").appendChild(urlDiv)
             document.getElementById("container").appendChild(optDiv)
+            document.getElementById("container").appendChild(itemDiv)
             document.getElementById("container").appendChild(searchDiv)
             Cookies.set("locationID",response.locationID)
         }
@@ -167,12 +175,13 @@ function createOptions(options){
         button.appendChild(td2Text)
         row.appendChild(button)
         tableBody.appendChild(row)
-        table.appendChild(tableBody)
-        optDiv.appendChild(table)
-        table.appendChild(tableBody)
-        optDiv.appendChild(table)
+
 
     }
+    table.appendChild(tableBody)
+    optDiv.appendChild(table)
+    table.appendChild(tableBody)
+    optDiv.appendChild(table)
     return optDiv
 }
 
@@ -186,7 +195,7 @@ function createSearchBar(){
     searchDiv.setAttribute("id","userInput")
     const form = document.createElement("form")
     const button = document.createElement("button")
-    button.setAttribute("onclick","startAction()")
+    button.setAttribute("onclick","checkKeyWord()")
     let buttonText = document.createTextNode("Enter")
     button.appendChild(buttonText)
     const text = document.createElement("input")
@@ -210,5 +219,87 @@ function createItemList(){
     searchDiv.setAttribute("id","items")
     searchDiv.setAttribute("class","items")
     return searchDiv
+}
+
+function createTitle(){
+    const titleDiv = document.createElement(("div"))
+    titleDiv.setAttribute("class","title")
+    const titleText = document.createTextNode("The Cheesily Titled Adventure Starts Here")
+    titleDiv.appendChild(titleText)
+    return titleDiv
+}
+
+function createHelpList(){
+    let url = "/dictionary/help"
+    fetch(url,{
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")){
+            console.log(JSON.stringify(response));
+        } else{
+            const dictDiv = document.createElement("div")
+            const table = document.createElement("table")
+            const tableBody = document.createElement("tbody")
+            const tableHeading = document.createElement("th")
+            const headingRow = document.createElement("tr")
+            const headingTitle = document.createTextNode("Available Words")
+            tableHeading.appendChild(headingTitle)
+            tableHeading.setAttribute("colSpan","2")
+            headingRow.appendChild(tableHeading)
+            tableBody.appendChild(headingRow)
+            dictDiv.setAttribute("class","dictionary")
+            dictDiv.setAttribute("id","dictionary")
+            table.setAttribute("class","table")
+            for(let word of response.wordlist){
+                let row = document.createElement("tr")
+                let td1 = document.createElement("td")
+                let td1Text = document.createTextNode(word.word)
+                let td2 = document.createElement("td")
+                let td2Text = document.createTextNode(word.description)
+                td1.appendChild(td1Text)
+                td2.appendChild(td2Text)
+                row.appendChild(td1)
+                row.appendChild(td2)
+                tableBody.appendChild(row)
+
+            }
+            table.appendChild(tableBody)
+            dictDiv.appendChild(table)
+            document.getElementById("container").appendChild(dictDiv)
+            return table
+            //startAction(response.word)
+        }
+    });
+
+}
+
+function createWordMap(){
+
+    console.log("Invoked createWordMap()")
+    let url = "/dictionary/getKeywords"
+    fetch(url,{
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")){
+            console.log(JSON.stringify(response));
+        } else{
+            const tableBody = document.createElement("tbody")
+            const tableHeading = document.createElement("th")
+            const headingRow = document.createElement("tr")
+            const headingTitle = document.createTextNode("Available Words")
+            tableHeading.appendChild(headingTitle)
+            tableHeading.setAttribute("colSpan","2")
+            headingRow.appendChild(tableHeading)
+            tableBody.appendChild(headingRow)
+            for (let word of response.wordlist){
+                keywords.set(word.word,word.url)
+            }
+            console.log(keywords)
+        }
+    });
 }
 

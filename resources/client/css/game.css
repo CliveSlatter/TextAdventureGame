@@ -1,6 +1,6 @@
 .container{
     display: grid;
-    grid-template-columns: repeat(5,20%);
+    grid-template-columns: repeat(6,15%);
     grid-template-rows: 5rem 10rem 20rem 15rem 5rem;
     width: 100%;
     height: 100%;
@@ -11,7 +11,7 @@
 
 .title{
     grid-row: 1;
-    grid-column: span 5;
+    grid-column: span 6;
     background-color: black;
     color: yellow;
     font-size: xxx-large;
@@ -36,7 +36,7 @@
 
 .description{
     grid-row: 2;
-    grid-column: 2 / span 3;
+    grid-column: 2 / span 4;
     border: purple thin double;
     border-radius: 10px;
     width: 100%;
@@ -50,8 +50,9 @@
 }
 
 .url{
+    align-content: center;
     grid-row: 2;
-    grid-column: 5;
+    grid-column: 6;
     border: purple thin double;
     border-radius: 10px;
     width: 100%;
@@ -61,12 +62,13 @@
 
 img{
     max-height: 100%;
-    width: auto;
+    max-width: 100%;
+    border-radius: 10px;
 }
 
 .directions{
     grid-row: 3;
-    grid-column: span 5;
+    grid-column: span 3;
     border: purple thin double;
     border-radius: 10px;
     width: 100%;
@@ -75,7 +77,16 @@ img{
 
 .items{
     grid-row: 4;
-    grid-column: span 5;
+    grid-column: span 3;
+    border: purple thin double;
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.dictionary{
+    grid-column: 4 / span 3;
+    grid-row: 3 / span 2;
     border: purple thin double;
     border-radius: 10px;
     width: 100%;
@@ -85,7 +96,7 @@ img{
 .input{
     display: inline-block;
     grid-row: 5;
-    grid-column: span 5;
+    grid-column: span 6;
     border: purple thin double;
     border-radius: 10px;
     width: 100%;
@@ -122,17 +133,14 @@ img{
 table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    width: 50%;
+    width: 100%;
 }
 
 td, th {
     border: 1px solid #dddddd;
     text-align: left;
     padding: 8px;
-}
-
-tr:nth-child(even) {
-    background-color: #dddddd;
+    border-radius: 15px;
 }
 
 tr button{

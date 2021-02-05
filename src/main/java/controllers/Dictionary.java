@@ -1,12 +1,11 @@
 package controllers;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import server.Main;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,18 +18,61 @@ public class Dictionary{
     @Produces(MediaType.APPLICATION_JSON)
     public String DictionaryCheck(@FormDataParam("keyword") String keyword){
         try{
-            keyword = keyword.toUpperCase();
-            System.out.println(keyword);
-            PreparedStatement ps = Main.db.prepareStatement("SELECT Word FROM Dictionary WHERE upper(Word)=?");
+            System.out.println("Invoked /dictionary/check using keyword: " + keyword);
+            JSONObject jso = new JSONObject();
+            PreparedStatement ps = Main.db.prepareStatement("SELECT Word FROM Dictionary WHERE Word=?");
             ps.setString(1,keyword);
-            ResultSet rs = ps.executeQuery();
-            while(rs.next()) {
-                if(rs.getString(1).toUpperCase().equals(keyword.toUpperCase())) {
-                    return "{\"Success\": \"Valid word used!\"}";
-                }
+            ResultSet rsWord = ps.executeQuery();
+            System.out.println(rsWord.getString(1));
+            if(rsWord.getString(1).equalsIgnoreCase(keyword)) {
+                jso.put("word",rsWord.getString(1));
+            }else{
+                return "{\"Error\": \"Unable to find the word entered.\"}";
             }
-            return "{\"Error\": \"Word not found in the list!\"}";
+            return jso.toString();
         }catch(Exception e){
+            return "{\"Error\": \""+e.toString()+"!\"}";
+        }
+    }
+
+    @GET
+    @Path("getKeywords")
+    public String getKeywords(){
+        JSONObject dictionary = new JSONObject();
+        JSONArray words = new JSONArray();
+        try{
+            PreparedStatement ps = Main.db.prepareStatement("SELECT Word, Path FROM Dictionary");
+            ResultSet rsDictionary = ps.executeQuery();
+            while(rsDictionary.next()){
+                JSONObject word = new JSONObject();
+                word.put("word",rsDictionary.getString(1));
+                word.put("url",rsDictionary.getString(2));
+                words.add(word);
+            }
+            dictionary.put("wordlist",words);
+            return dictionary.toString();
+        }catch (Exception e){
+            return "{\"Error\": \""+e.toString()+"!\"}";
+        }
+    }
+
+    @GET
+    @Path("help")
+    public String help(){
+        JSONObject dictionary = new JSONObject();
+        JSONArray words = new JSONArray();
+        try{
+            PreparedStatement ps = Main.db.prepareStatement("SELECT Word, Description FROM Dictionary");
+            ResultSet rsDictionary = ps.executeQuery();
+            while(rsDictionary.next()){
+                JSONObject word = new JSONObject();
+                word.put("word",rsDictionary.getString(1));
+                word.put("description",rsDictionary.getString(2));
+                words.add(word);
+            }
+            dictionary.put("wordlist",words);
+            return dictionary.toString();
+        }catch (Exception e){
             return "{\"Error\": \""+e.toString()+"!\"}";
         }
     }
