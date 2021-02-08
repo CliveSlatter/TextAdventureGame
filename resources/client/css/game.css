@@ -1,7 +1,7 @@
 .container{
     display: grid;
     grid-template-columns: repeat(6,15%);
-    grid-template-rows: 5rem 10rem 20rem 15rem 5rem;
+    grid-template-rows: 4rem 12rem 18rem 13rem 2rem 5rem;
     width: 100%;
     height: 100%;
     margin: 20px;
@@ -42,7 +42,7 @@
     width: 100%;
     height: 100%;
     background-color: purple;
-    font-size: larger;
+    font-size: large;
     font-style: oblique;
     font-family: "Malgun Gothic";
     color: yellow;
@@ -93,9 +93,18 @@ img{
     height: 100%;
 }
 
+.message{
+    grid-row: 5;
+    grid-column: span 6;
+    border: purple thin double;
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+}
+
 .input{
     display: inline-block;
-    grid-row: 5;
+    grid-row: 6;
     grid-column: span 6;
     border: purple thin double;
     border-radius: 10px;

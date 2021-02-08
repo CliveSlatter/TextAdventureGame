@@ -12,7 +12,8 @@ function loadStart() {
         if (response.hasOwnProperty("Error")) {
             alert(JSON.stringify(response));
         } else {
-            let titleDiv = createTitle()
+            createPage(response)
+            /*let titleDiv = createTitle()
             let locDiv = createLocation(response.locationName, response.locationID)
             let descDiv = createDescription(response.description)
             let urlDiv = createImage(response.url)
@@ -26,7 +27,7 @@ function loadStart() {
             document.getElementById("container").appendChild(optDiv)
             document.getElementById("container").appendChild(itemDiv)
             document.getElementById("container").appendChild(searchDiv)
-            Cookies.set("locationID",response.locationID)
+            Cookies.set("locationID",response.locationID)*/
         }
     });
 }
@@ -47,7 +48,7 @@ function startAction(word) {
                 let itemsHTML = `<table><tr><th>Items</th></tr>`
                 for(let item of response.items){
                     itemsHTML += `<tr>`
-                        + `<td><button id="${item.itemID}">${item.item}</button></td>`
+                        + `<td><button id="${item.itemID}" onclick="collectItem(${item.itemID})">${item.item}</button></td>`
                         +`</tr>`
                 }
                 itemsHTML += `</table>`
@@ -100,6 +101,8 @@ function findLocation(id){
             while(node.firstChild){
                 node.removeChild(node.firstChild)
             }
+            createPage(response)
+            /*
             let titleDiv = createTitle()
             let locDiv = createLocation(response.locationName, response.locationID)
             let descDiv = createDescription(response.description)
@@ -114,7 +117,7 @@ function findLocation(id){
             document.getElementById("container").appendChild(optDiv)
             document.getElementById("container").appendChild(itemDiv)
             document.getElementById("container").appendChild(searchDiv)
-            Cookies.set("locationID",response.locationID)
+            Cookies.set("locationID",response.locationID)*/
         }
     });
 
@@ -214,6 +217,13 @@ function createSearchBar(){
     return searchDiv
 }
 
+function createMessageBar(){
+    let messageDiv = document.createElement("div")
+    messageDiv.setAttribute("id","message")
+    messageDiv.setAttribute("class","message")
+    return messageDiv
+}
+
 function createItemList(){
     const searchDiv = document.createElement("div")
     searchDiv.setAttribute("id","items")
@@ -301,5 +311,43 @@ function createWordMap(){
             console.log(keywords)
         }
     });
+}
+
+function collectItem(itemID){
+    console.log("Item ID: "+ itemID)
+    let url = "/items/collect"
+    Cookies.set("itemID", itemID)
+    fetch(url,{
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")){
+            console.log(JSON.stringify(response));
+        } else{
+            console.log(JSON.stringify(response))
+
+        }
+    });
+}
+
+function createPage(response){
+    let titleDiv = createTitle()
+    let locDiv = createLocation(response.locationName, response.locationID)
+    let descDiv = createDescription(response.description)
+    let urlDiv = createImage(response.url)
+    let optDiv = createOptions(response.options)
+    let itemDiv = createItemList()
+    let searchDiv = createSearchBar()
+    let messageDiv = createMessageBar()
+    document.getElementById("container").appendChild(titleDiv)
+    document.getElementById("container").appendChild(locDiv)
+    document.getElementById("container").appendChild(descDiv)
+    document.getElementById("container").appendChild(urlDiv)
+    document.getElementById("container").appendChild(optDiv)
+    document.getElementById("container").appendChild(itemDiv)
+    document.getElementById("container").appendChild(searchDiv)
+    document.getElementById("container").appendChild(messageDiv)
+    Cookies.set("locationID",response.locationID)
 }
 
