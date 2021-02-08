@@ -60,10 +60,14 @@
     justify-content: center;
 }
 
-img{
+.url img{
     max-height: 100%;
     max-width: 100%;
     border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    vertical-align: middle;
 }
 
 .directions{
@@ -85,7 +89,7 @@ img{
 }
 
 .dictionary{
-    grid-column: 4 / span 3;
+    grid-column: 4 / span 2;
     grid-row: 3 / span 2;
     border: purple thin double;
     border-radius: 10px;

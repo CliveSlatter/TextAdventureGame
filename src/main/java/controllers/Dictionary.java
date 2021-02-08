@@ -20,10 +20,9 @@ public class Dictionary{
         try{
             System.out.println("Invoked /dictionary/check using keyword: " + keyword);
             JSONObject jso = new JSONObject();
-            PreparedStatement ps = Main.db.prepareStatement("SELECT Word FROM Dictionary WHERE Word=?");
-            ps.setString(1,keyword);
+            PreparedStatement ps = Main.db.prepareStatement("SELECT Word FROM Dictionary WHERE lower(Word)=?");
+            ps.setString(1,keyword.toLowerCase());
             ResultSet rsWord = ps.executeQuery();
-            System.out.println(rsWord.getString(1));
             if(rsWord.getString(1).equalsIgnoreCase(keyword)) {
                 jso.put("word",rsWord.getString(1));
             }else{

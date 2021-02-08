@@ -15,7 +15,7 @@ import java.sql.ResultSet;
 public class Locations {
     @GET
     @Path("getFirst")
-    public String getFirstLocation(){
+    public String getFirstLocation(@CookieParam("locationID") int locationID){
         try{
             JSONArray jsa = new JSONArray();
             System.out.println("Invoked /locations/getFirst()");
@@ -24,6 +24,8 @@ public class Locations {
             PreparedStatement directions = Main.db.prepareStatement("SELECT Label, DestinationID FROM Directions WHERE LocationID = ?");
             directions.setInt(1,resultSet.getInt(1));
             ResultSet rsDirections = directions.executeQuery();
+            PreparedStatement psReq = Main.db.prepareStatement("SELECT Requirement FROM Directions WHERE DestinationID=?");
+            psReq.setInt(1,locationID);
             while(rsDirections.next()){
                 JSONObject option = new JSONObject();
                 option.put("label",rsDirections.getString(1));
@@ -76,7 +78,7 @@ public class Locations {
             PreparedStatement ps = Main.db.prepareStatement("SELECT LocationID, Name, Description, url FROM Locations WHERE LocationID=?");
             ps.setInt(1,locationID);
             ResultSet resultSet = ps.executeQuery();
-            PreparedStatement directions = Main.db.prepareStatement("SELECT Label, DestinationID FROM Directions WHERE LocationID = ?");
+            PreparedStatement directions = Main.db.prepareStatement("SELECT Label, DestinationID, Requirement FROM Directions WHERE LocationID = ?");
             directions.setInt(1,resultSet.getInt(1));
             ResultSet rsDirections = directions.executeQuery();
             while(rsDirections.next()){
@@ -92,13 +94,31 @@ public class Locations {
             location.put("description",resultSet.getString(3));
             location.put("url",resultSet.getString(4));
             location.put("options",jsa);
-            System.out.println(location.toString());
             return location.toString();
 
         }catch(Exception e){
             return "{\"Error\": \"Unable to retrieve a location from the database.\"}";
         }
     }
+
+    @GET
+    @Path("destinationRequirement")
+    public String checkRequirement(@CookieParam("destinationID") int destinationID){
+        try{
+            PreparedStatement psCheck = Main.db.prepareStatement("SELECT Requirement FROM Directions WHERE DestinationID=?");
+            psCheck.setInt(1,destinationID);
+            ResultSet rsCheck = psCheck.executeQuery();
+            PreparedStatement psItemStatus = Main.db.prepareStatement("SELECT Name,Collected FROM Items WHERE ItemID=?");
+            psItemStatus.setInt(1, rsCheck.getInt(1));
+            ResultSet rsItemStatus = psItemStatus.executeQuery();
+            System.out.println(rsItemStatus.getString(1));
+            if(rsItemStatus.getInt(2)==0) return "{\"Success\": \"Required item has been collected.\"}";
+            else return "{\"Missing\": \"Required item has yet to be picked up.\"}";
+        }catch(Exception e){
+            return "{\"Error\": \"Unable verify destination requirement.\"}";
+        }
+    }
+
 }
 
 

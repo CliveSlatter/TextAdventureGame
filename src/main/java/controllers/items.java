@@ -52,4 +52,16 @@ public class items {
             return "{\"Error\": \""+e+"!\"}";
         }
     }
+
+    @GET
+    @Path("reset")
+    public String resetItems(){
+        try{
+            PreparedStatement ps = Main.db.prepareStatement("UPDATE Items SET Collected=0 WHERE Collected=1");
+            ps.executeUpdate();
+            return "{\"Success\": \"Items have been successfully reset!\"}";
+        }catch(Exception e){
+            return "{\"Error\": \""+e+"!\"}";
+        }
+    }
 }

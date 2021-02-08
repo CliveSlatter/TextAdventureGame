@@ -13,21 +13,6 @@ function loadStart() {
             alert(JSON.stringify(response));
         } else {
             createPage(response)
-            /*let titleDiv = createTitle()
-            let locDiv = createLocation(response.locationName, response.locationID)
-            let descDiv = createDescription(response.description)
-            let urlDiv = createImage(response.url)
-            let optDiv = createOptions(response.options)
-            let itemDiv = createItemList()
-            let searchDiv = createSearchBar()
-            document.getElementById("container").appendChild(titleDiv)
-            document.getElementById("container").appendChild(locDiv)
-            document.getElementById("container").appendChild(descDiv)
-            document.getElementById("container").appendChild(urlDiv)
-            document.getElementById("container").appendChild(optDiv)
-            document.getElementById("container").appendChild(itemDiv)
-            document.getElementById("container").appendChild(searchDiv)
-            Cookies.set("locationID",response.locationID)*/
         }
     });
 }
@@ -59,6 +44,10 @@ function startAction(word) {
     }else if(word==="Help"){
 
         createHelpList()
+
+    }else if(word==="Inventory"){
+
+        createInventoryList()
 
     }
 
@@ -95,32 +84,23 @@ function findLocation(id){
     }).then(response => {
         if (response.hasOwnProperty("Error")) {
             alert(JSON.stringify(response));
+        }else if(response.hasOwnProperty("Missing")){
+            console.log("unable to travel in that direction, you do not have the required item!")
         } else {
             console.log(response)
+            checkRequirement(id)
             let node = document.getElementById("container")
             while(node.firstChild){
                 node.removeChild(node.firstChild)
             }
             createPage(response)
-            /*
-            let titleDiv = createTitle()
-            let locDiv = createLocation(response.locationName, response.locationID)
-            let descDiv = createDescription(response.description)
-            let urlDiv = createImage(response.url)
-            let optDiv = createOptions(response.options)
-            let itemDiv = createItemList()
-            let searchDiv = createSearchBar()
-            document.getElementById("container").appendChild(titleDiv)
-            document.getElementById("container").appendChild(locDiv)
-            document.getElementById("container").appendChild(descDiv)
-            document.getElementById("container").appendChild(urlDiv)
-            document.getElementById("container").appendChild(optDiv)
-            document.getElementById("container").appendChild(itemDiv)
-            document.getElementById("container").appendChild(searchDiv)
-            Cookies.set("locationID",response.locationID)*/
-        }
+         }
     });
 
+}
+
+function checkRequirement(id){
+    console.log("Location id: "+id)
 }
 
 function createLocation(locationName, locationID){
@@ -326,7 +306,7 @@ function collectItem(itemID){
             console.log(JSON.stringify(response));
         } else{
             console.log(JSON.stringify(response))
-
+            startAction("Search")
         }
     });
 }
@@ -351,3 +331,6 @@ function createPage(response){
     Cookies.set("locationID",response.locationID)
 }
 
+function createInventoryList(){
+    console.log("Invoked createInventoryList()")
+}
