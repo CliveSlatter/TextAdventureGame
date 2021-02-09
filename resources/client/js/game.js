@@ -1,6 +1,7 @@
 let keywords = new Map()
 
 function loadStart() {
+    resetItems()
     let url = "/locations/getFirst"
     createWordMap()
     console.log("Invoked firstLocation()");
@@ -88,7 +89,6 @@ function findLocation(id){
             console.log("unable to travel in that direction, you do not have the required item!")
         } else {
             console.log(response)
-            checkRequirement(id)
             let node = document.getElementById("container")
             while(node.firstChild){
                 node.removeChild(node.firstChild)
@@ -97,10 +97,6 @@ function findLocation(id){
          }
     });
 
-}
-
-function checkRequirement(id){
-    console.log("Location id: "+id)
 }
 
 function createLocation(locationName, locationID){
@@ -151,7 +147,8 @@ function createOptions(options){
         let button = document.createElement("button")
         button.setAttribute("id",opt.destinationID)
         button.onclick=function() {
-            findLocation(opt.destinationID); // or use a data-attribute
+            Cookies.set("destinationID",opt.destinationID)
+            validateDestination(); // or use a data-attribute
         }
         let td2 = document.createElement("td")
         let td2Text = document.createTextNode(opt.label)
@@ -168,8 +165,23 @@ function createOptions(options){
     return optDiv
 }
 
-function createItems(){
-
+function validateDestination(){
+    let url = "/directions/validate"
+    fetch(url,{
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")){
+            console.log(JSON.stringify(response));
+        } else{
+            if(response.collected==true || response.collected==null){
+                findLocation(Cookies.get("destinationID"))
+            }else if(response.collected==false){
+                findLocation(Cookies.get("locationID"))
+            }
+        }
+    });
 }
 
 function createSearchBar(){
@@ -333,4 +345,19 @@ function createPage(response){
 
 function createInventoryList(){
     console.log("Invoked createInventoryList()")
+}
+
+function resetItems(){
+    let url = "/items/reset"
+    fetch(url,{
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")){
+            console.log(JSON.stringify(response));
+        } else{
+            console.log(JSON.stringify(response))
+        }
+    });
 }
