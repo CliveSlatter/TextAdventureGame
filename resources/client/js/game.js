@@ -2,6 +2,7 @@ let keywords = new Map()
 
 function loadStart() {
     resetItems()
+    Cookies.set("message","")
     let url = "/locations/getFirst"
     createWordMap()
     console.log("Invoked firstLocation()");
@@ -85,8 +86,6 @@ function findLocation(id){
     }).then(response => {
         if (response.hasOwnProperty("Error")) {
             alert(JSON.stringify(response));
-        }else if(response.hasOwnProperty("Missing")){
-            console.log("unable to travel in that direction, you do not have the required item!")
         } else {
             console.log(response)
             let node = document.getElementById("container")
@@ -148,6 +147,7 @@ function createOptions(options){
         button.setAttribute("id",opt.destinationID)
         button.onclick=function() {
             Cookies.set("destinationID",opt.destinationID)
+            Cookies.set("message","")
             validateDestination(); // or use a data-attribute
         }
         let td2 = document.createElement("td")
@@ -179,6 +179,7 @@ function validateDestination(){
                 findLocation(Cookies.get("destinationID"))
             }else if(response.collected==false){
                 findLocation(Cookies.get("locationID"))
+                Cookies.set("message","You do not have the required item to proceed this way!!")
             }
         }
     });
@@ -213,6 +214,8 @@ function createMessageBar(){
     let messageDiv = document.createElement("div")
     messageDiv.setAttribute("id","message")
     messageDiv.setAttribute("class","message")
+    let message = document.createTextNode(Cookies.get("message"))
+    messageDiv.appendChild(message)
     return messageDiv
 }
 
