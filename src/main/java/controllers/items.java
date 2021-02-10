@@ -64,4 +64,23 @@ public class items {
             return "{\"Error\": \""+e+"!\"}";
         }
     }
+
+    @GET
+    @Path("inventory")
+    public String getInventory(){
+        try{
+            JSONObject jso = new JSONObject();
+            JSONArray jsa = new JSONArray();
+            PreparedStatement ps = Main.db.prepareStatement("SELECT Name FROM Items WHERE Collected=1");
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                jsa.add(rs.getString(1));
+            }
+            jso.put("inventory",jsa);
+            return jso.toString();
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+            return "{\"Error\": \""+e+"!\"}";
+        }
+    }
 }

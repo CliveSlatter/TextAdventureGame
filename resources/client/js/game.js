@@ -155,8 +155,6 @@ function createOptions(options){
         button.appendChild(td2Text)
         row.appendChild(button)
         tableBody.appendChild(row)
-
-
     }
     table.appendChild(tableBody)
     optDiv.appendChild(table)
@@ -273,7 +271,7 @@ function createHelpList(){
             table.appendChild(tableBody)
             dictDiv.appendChild(table)
             document.getElementById("container").appendChild(dictDiv)
-            return table
+            //return table
             //startAction(response.word)
         }
     });
@@ -348,6 +346,45 @@ function createPage(response){
 
 function createInventoryList(){
     console.log("Invoked createInventoryList()")
+    let url = "/items/inventory"
+    fetch(url,{
+        method: "GET",
+    }).then(response => {
+        return response.json()
+    }).then(response => {
+        if (response.hasOwnProperty("Error")){
+            console.log(JSON.stringify(response));
+        } else{
+            console.log(JSON.stringify(response))
+            const invDiv = document.createElement("div")
+            const table = document.createElement("table")
+            const tableBody = document.createElement("tbody")
+            const tableHeading = document.createElement("th")
+            const headingRow = document.createElement("tr")
+            const headingTitle = document.createTextNode("Currently Held Items")
+            tableHeading.appendChild(headingTitle)
+            headingRow.appendChild(tableHeading)
+            tableBody.appendChild(headingRow)
+            invDiv.setAttribute("class","inventory")
+            invDiv.setAttribute("id","inventory")
+            table.setAttribute("class","table")
+            for(let item of response.inventory){
+                let row = document.createElement("tr")
+                let td2 = document.createElement("td")
+                let td2Text = document.createTextNode(item)
+                td2.appendChild(td2Text)
+                row.appendChild(td2)
+                tableBody.appendChild(row)
+            }
+            table.appendChild(tableBody)
+            invDiv.appendChild(table)
+            table.appendChild(tableBody)
+            invDiv.appendChild(table)
+            document.getElementById("container").appendChild(invDiv)
+            //return table
+            
+        }
+    });
 }
 
 function resetItems(){
